@@ -1,0 +1,66 @@
+import numpy
+import scipy.special
+import matplotlib.pyplot
+
+%matplotlib inline
+
+class NeuralNetwork:
+    
+    
+    def __init__(self, inputnodes, hiddennodes, outputnodes, learningrate):
+       
+        self.inodes = inputnodes
+        self.hnodes = hiddennodes
+        self.onodes = outputnodes
+        
+        self.wih = numpy.random.normal(0.0, pow(self.inodes, -0.5), (self.hnodes, self.inodes))
+        self.who = numpy.random.normal(0.0, pow(self.hnodes, -0.5), (self.onodes, self.hnodes))
+
+        self.lr = learningrate
+        
+        self.activation_function = lambda x: scipy.special.expit(x)
+        
+    
+    def training(self, input_list, target_list):
+       
+        input = numpy.array(input_list, ndmin=2).T
+        target = numpy.array(target_list, ndmin=2).T
+        
+     
+        hidden_input = numpy.dot(self.wih, input)
+       
+        hidden_output = self.activation_function(hidden_input)
+        
+        
+        final_input = numpy.dot(self.who, hidden_output)
+        
+        final_output = self.activation_function(final_input)
+        
+       
+        output_error = target - final_output
+        
+        hidden_error = numpy.dot(self.who.T, output_error) 
+        
+        
+        self.who += self.lr * numpy.dot((output_error * final_output * (1.0 - final_output)), numpy.transpose(hidden_output))
+
+        self.wih += self.lr * numpy.dot((hidden_error * hidden_output * (1.0 - hidden_output)), numpy.transpose(input))
+        
+
+
+    
+   
+    def test(self, input_list):
+        
+        input = numpy.array(input_list, ndmin=2).T
+       
+        hidden_input = numpy.dot(self.wih, input)
+        
+        hidden_output = self.activation_function(hidden_input)
+        
+        
+        final_input = numpy.dot(self.who, hidden_output)
+        
+        final_output = self.activation_function(final_input)
+        
+        return final_output
